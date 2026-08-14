@@ -2,64 +2,597 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>S4 Cloud Web Application</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="S4 Cloud Web Application - Flask, PostgreSQL, Docker and CI/CD project">
+<title>S4 | Cloud Web Application</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
-header{background:#172033;color:white;padding:70px 20px;text-align:center}
-h1{font-size:42px;margin:0 0 15px}
-header p{font-size:18px}
-.container{max-width:1000px;margin:40px auto;padding:0 20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
-.card{background:white;padding:25px;border-radius:14px;box-shadow:0 4px 15px #0001}
-.card h2{margin-top:0}
-.badge{display:inline-block;padding:8px 12px;background:#e8f5e9;border-radius:20px;color:#176b2c;font-weight:bold}
-footer{text-align:center;padding:30px;color:#667085}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+background:#050816;
+color:#eef2ff;
+overflow-x:hidden
+}
+a{text-decoration:none;color:inherit}
+
+.bg{
+position:fixed;
+inset:0;
+z-index:-2;
+background:
+radial-gradient(circle at 15% 20%,rgba(59,130,246,.18),transparent 30%),
+radial-gradient(circle at 85% 30%,rgba(139,92,246,.18),transparent 30%),
+radial-gradient(circle at 50% 90%,rgba(14,165,233,.12),transparent 35%)
+}
+
+.grid{
+position:fixed;
+inset:0;
+z-index:-1;
+opacity:.16;
+background-image:
+linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),
+linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
+background-size:50px 50px;
+mask-image:linear-gradient(to bottom,black,transparent)
+}
+
+nav{
+position:fixed;
+top:0;
+left:0;
+right:0;
+z-index:20;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 7%;
+backdrop-filter:blur(16px);
+background:rgba(5,8,22,.65);
+border-bottom:1px solid rgba(255,255,255,.08)
+}
+
+.logo{
+font-size:22px;
+font-weight:800;
+letter-spacing:1px
+}
+
+.logo span{color:#60a5fa}
+
+.navlinks{
+display:flex;
+gap:28px;
+font-size:14px;
+color:#aeb9d4
+}
+
+.navlinks a:hover{color:white}
+
+.hero{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:120px 20px 70px
+}
+
+.hero-content{
+max-width:900px;
+animation:fadeUp 1s ease both
+}
+
+.badge{
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:9px 16px;
+border:1px solid rgba(96,165,250,.35);
+border-radius:999px;
+background:rgba(59,130,246,.08);
+color:#93c5fd;
+font-size:13px;
+margin-bottom:28px
+}
+
+.dot{
+width:8px;
+height:8px;
+border-radius:50%;
+background:#4ade80;
+box-shadow:0 0 15px #4ade80;
+animation:pulse 1.6s infinite
+}
+
+h1{
+font-size:clamp(48px,8vw,92px);
+line-height:.95;
+letter-spacing:-4px;
+margin-bottom:25px
+}
+
+.gradient{
+background:linear-gradient(90deg,#60a5fa,#a78bfa,#22d3ee);
+-webkit-background-clip:text;
+background-clip:text;
+color:transparent;
+background-size:200%;
+animation:gradient 5s ease infinite
+}
+
+.hero p{
+max-width:680px;
+margin:auto;
+font-size:18px;
+line-height:1.8;
+color:#9aa8c4
+}
+
+.buttons{
+margin-top:38px;
+display:flex;
+justify-content:center;
+gap:15px;
+flex-wrap:wrap
+}
+
+.btn{
+padding:13px 22px;
+border-radius:10px;
+font-weight:700;
+font-size:14px;
+transition:.3s;
+border:1px solid rgba(255,255,255,.12)
+}
+
+.primary{
+background:#2563eb;
+box-shadow:0 10px 35px rgba(37,99,235,.25)
+}
+
+.primary:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 45px rgba(37,99,235,.4)
+}
+
+.secondary{
+background:rgba(255,255,255,.04)
+}
+
+.secondary:hover{
+background:rgba(255,255,255,.09);
+transform:translateY(-3px)
+}
+
+section{
+padding:100px 7%;
+max-width:1250px;
+margin:auto
+}
+
+.section-title{
+text-align:center;
+margin-bottom:55px
+}
+
+.section-title small{
+color:#60a5fa;
+text-transform:uppercase;
+letter-spacing:3px;
+font-weight:700
+}
+
+.section-title h2{
+font-size:42px;
+margin-top:12px
+}
+
+.architecture{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:15px;
+align-items:center
+}
+
+.arch-card{
+padding:25px 15px;
+text-align:center;
+border:1px solid rgba(255,255,255,.1);
+background:rgba(255,255,255,.035);
+border-radius:16px;
+transition:.4s;
+animation:float 4s ease-in-out infinite
+}
+
+.arch-card:nth-child(2){animation-delay:.3s}
+.arch-card:nth-child(3){animation-delay:.6s}
+.arch-card:nth-child(4){animation-delay:.9s}
+.arch-card:nth-child(5){animation-delay:1.2s}
+
+.arch-card:hover{
+transform:translateY(-10px) scale(1.03);
+border-color:#60a5fa;
+background:rgba(59,130,246,.08)
+}
+
+.icon{
+font-size:34px;
+margin-bottom:13px
+}
+
+.arch-card h3{font-size:15px}
+.arch-card p{
+font-size:12px;
+color:#8491ad;
+margin-top:7px
+}
+
+.arrow{
+text-align:center;
+color:#60a5fa;
+font-size:25px
+}
+
+.features{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px
+}
+
+.card{
+padding:30px;
+border:1px solid rgba(255,255,255,.08);
+border-radius:18px;
+background:rgba(255,255,255,.035);
+transition:.35s
+}
+
+.card:hover{
+transform:translateY(-7px);
+border-color:rgba(96,165,250,.5);
+box-shadow:0 20px 60px rgba(0,0,0,.25)
+}
+
+.card .icon{font-size:30px}
+.card h3{margin-bottom:10px}
+.card p{
+color:#8e9ab4;
+line-height:1.7;
+font-size:14px
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px
+}
+
+.stat{
+text-align:center;
+padding:30px;
+border-radius:16px;
+background:rgba(255,255,255,.035);
+border:1px solid rgba(255,255,255,.08)
+}
+
+.stat strong{
+display:block;
+font-size:35px;
+color:#60a5fa;
+margin-bottom:8px
+}
+
+.stat span{
+color:#8995ae;
+font-size:13px
+}
+
+.pipeline{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+flex-wrap:wrap
+}
+
+.pipe{
+padding:18px 24px;
+border-radius:12px;
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);
+font-weight:700;
+animation:glow 2.5s infinite
+}
+
+.pipe-arrow{
+color:#60a5fa;
+font-size:22px
+}
+
+.status{
+margin-top:50px;
+padding:30px;
+border-radius:18px;
+background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(139,92,246,.1));
+border:1px solid rgba(96,165,250,.2);
+text-align:center
+}
+
+.status span{color:#4ade80;font-weight:700}
+
+footer{
+border-top:1px solid rgba(255,255,255,.08);
+padding:35px 7%;
+text-align:center;
+color:#71809c;
+font-size:13px
+}
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(30px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0)}
+50%{transform:translateY(-7px)}
+}
+
+@keyframes pulse{
+50%{transform:scale(1.5);opacity:.5}
+}
+
+@keyframes gradient{
+0%,100%{background-position:0%}
+50%{background-position:100%}
+}
+
+@keyframes glow{
+0%,100%{box-shadow:0 0 0 rgba(96,165,250,0)}
+50%{box-shadow:0 0 25px rgba(96,165,250,.18)}
+}
+
+@media(max-width:850px){
+.architecture{grid-template-columns:1fr}
+.arrow{transform:rotate(90deg)}
+.features{grid-template-columns:1fr}
+.stats{grid-template-columns:repeat(2,1fr)}
+.navlinks{display:none}
+h1{letter-spacing:-2px}
+}
+
+@media(max-width:500px){
+.stats{grid-template-columns:1fr}
+section{padding:75px 5%}
+}
 </style>
 </head>
+
 <body>
-<header>
-<h1>S4 Cloud Web Application</h1>
-<p>Cloud-ready web application portfolio project</p>
-<span class="badge">● Live Static Demo</span>
+
+<div class="bg"></div>
+<div class="grid"></div>
+
+<nav>
+<div class="logo">S4<span>.CLOUD</span></div>
+<div class="navlinks">
+<a href="#architecture">Architecture</a>
+<a href="#features">Features</a>
+<a href="#pipeline">CI/CD</a>
+<a href="#status">Status</a>
+</div>
+</nav>
+
+<header class="hero">
+<div class="hero-content">
+
+<div class="badge">
+<div class="dot"></div>
+Production-ready portfolio project
+</div>
+
+<h1>
+S4 Cloud<br>
+<span class="gradient">Web Application</span>
+</h1>
+
+<p>
+A modern cloud-ready application demonstrating
+containerization, database integration, automated testing,
+GitHub workflows and static cloud deployment.
+</p>
+
+<div class="buttons">
+<a class="btn primary" href="#architecture">Explore Architecture ↓</a>
+<a class="btn secondary" href="https://github.com/sathwik-svg/s4-cloud-web-application" target="_blank">View GitHub ↗</a>
+</div>
+
+</div>
 </header>
 
-<main class="container">
-<h2>Project Architecture</h2>
+<section id="architecture">
 
-<div class="grid">
+<div class="section-title">
+<small>System Design</small>
+<h2>Cloud Architecture</h2>
+</div>
+
+<div class="architecture">
+
+<div class="arch-card">
+<div class="icon">👨‍💻</div>
+<h3>Developer</h3>
+<p>Git workflow</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="arch-card">
+<div class="icon">🐙</div>
+<h3>GitHub</h3>
+<p>Source control</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="arch-card">
+<div class="icon">⚙️</div>
+<h3>CI/CD</h3>
+<p>Automated testing</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="arch-card">
+<div class="icon">🐳</div>
+<h3>Docker</h3>
+<p>Containerization</p>
+</div>
+
+<div class="arrow">→</div>
+
+<div class="arch-card">
+<div class="icon">☁️</div>
+<h3>Cloud</h3>
+<p>Static deployment</p>
+</div>
+
+</div>
+
+</section>
+
+<section id="features">
+
+<div class="section-title">
+<small>Engineering Stack</small>
+<h2>Built With</h2>
+</div>
+
+<div class="features">
+
 <div class="card">
-<h2>Frontend</h2>
-<p>HTML5, CSS3 and JavaScript</p>
+<div class="icon">🌐</div>
+<h3>Frontend</h3>
+<p>Responsive HTML5, CSS3 and JavaScript interface with modern animations and mobile support.</p>
 </div>
 
 <div class="card">
-<h2>Cloud</h2>
-<p>Static web hosting and Git-based deployment</p>
+<div class="icon">🐍</div>
+<h3>Flask Backend</h3>
+<p>Python Flask application architecture with REST-style endpoints and health monitoring.</p>
 </div>
 
 <div class="card">
-<h2>DevOps</h2>
-<p>Git, GitHub and automated CI workflow</p>
+<div class="icon">🐘</div>
+<h3>PostgreSQL</h3>
+<p>Relational database integration using SQLAlchemy for structured application data.</p>
 </div>
 
 <div class="card">
-<h2>Containerization</h2>
-<p>Docker-based development environment</p>
-</div>
+<div class="icon">🐳</div>
+<h3>Docker</h3>
+<p>Containerized application environment using Docker and Docker Compose.</p>
 </div>
 
+<div class="card">
+<div class="icon">🔄</div>
+<h3>GitHub Actions</h3>
+<p>Automated testing and Docker image validation on every push and pull request.</p>
+</div>
+
+<div class="card">
+<div class="icon">☁️</div>
+<h3>Cloud Deployment</h3>
+<p>Static cloud hosting architecture designed for fast and globally accessible delivery.</p>
+</div>
+
+</div>
+
+</section>
+
+<section>
+
+<div class="section-title">
+<small>Project Metrics</small>
+<h2>Engineering Overview</h2>
+</div>
+
+<div class="stats">
+
+<div class="stat">
+<strong>100%</strong>
+<span>Containerized</span>
+</div>
+
+<div class="stat">
+<strong>CI/CD</strong>
+<span>Automated Workflow</span>
+</div>
+
+<div class="stat">
+<strong>REST</strong>
+<span>API Architecture</span>
+</div>
+
+<div class="stat">
+<strong>Cloud</strong>
+<span>Deployment Ready</span>
+</div>
+
+</div>
+
+</section>
+
+<section id="pipeline">
+
+<div class="section-title">
+<small>DevOps Workflow</small>
+<h2>Deployment Pipeline</h2>
+</div>
+
+<div class="pipeline">
+
+<div class="pipe">💻 Code</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe">🐙 GitHub</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe">⚙️ Actions</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe">🧪 Tests</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe">🐳 Docker</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe">☁️ Cloud</div>
+
+</div>
+
+</section>
+
+<section id="status">
+
+<div class="section-title">
+<small>Deployment</small>
 <h2>Project Status</h2>
-<div class="card">
-<p><strong>Application:</strong> S4 Cloud Web Application</p>
-<p><strong>Deployment:</strong> Static Website</p>
-<p><strong>Status:</strong> Production-ready portfolio demo</p>
 </div>
-</main>
+
+<div class="status">
+<h3>🚀 S4 Cloud Web Application</h3>
+<p style="margin-top:12px;color:#9aa8c4">
+Deployment: <span>● Live Static Website</span>
+</p>
+<p style="margin-top:8px;color:#9aa8c4">
+Architecture: Flask + PostgreSQL + Docker + CI/CD
+</p>
+</div>
+
+</section>
 
 <footer>
-S4 Cloud Web Application · CSE Project
+S4 Cloud Web Application · CSE Engineering Project · Built for Cloud & DevOps Portfolio
 </footer>
+
 </body>
 </html>
